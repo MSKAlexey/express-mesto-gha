@@ -1,5 +1,5 @@
-import express from 'express';
+const express = require('express');
 
-const app = express();
+// const app = express();
 
-const { PORT = 3000 } = process.env;
+// const { PORT = 3000 } = process.env;
