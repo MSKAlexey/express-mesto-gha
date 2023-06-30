@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    default: 'http://yandex.ru',
+    default: 'https://mobimg.b-cdn.net/v3/fetch/6d/6d48cc4931068721007e798bbfcd1e8c.jpeg',
     required: [true, 'Поле должно быть заполнено'],
   },
   email: {
@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    // select: false,
+    select: false,
     required: [true, 'Поле должно быть заполнено'],
   },
 }, { versionKey: false });

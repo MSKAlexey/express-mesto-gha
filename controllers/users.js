@@ -1,10 +1,28 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 const createUser = (req, res, next) => {
+  const {
+    name,
+    about,
+    avatat,
+    email,
+    password,
+  } = req.body;
 
-  User.create(req.body)
-    .then((user) => {
-      res.send({ data: user });
+  bcrypt.hash(String(password), 10)
+    .then((hashedPassword) => {
+      User.create({
+        name,
+        about,
+        avatat,
+        email,
+        password: hashedPassword
+      })
+        .then((user) => {
+          res.send({ data: user });
+        })
+        .catch(next);
     })
     .catch(next);
 };
@@ -16,21 +34,29 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
-const getUser = (req, res) => {
+const login = (req, res, next) => {
 
-  const { id } = req.params
+  const { email, password } = req.body;
 
-  User.findById(id)
+  User.findOne({ email })
+    .select('+password')
+    .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
-      res.send(user)
+      console.log(user);
+      bcrypt.compare(String(password), user.password)
+        .then((isValidUser) => {
+          if (isValidUser) {
+            res.send({ data: user });
+          } else {
+            res.status(403).send({ message: 'Неправильный пароль' });
+          }
+        })
     })
-    .catch((error) => {
-      res.status(400).send(error);
-    })
-}
+    .catch(next)
+};
 
 module.exports = {
   createUser,
   getUsers,
-  getUser
+  login
 }
