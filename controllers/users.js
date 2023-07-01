@@ -17,7 +17,7 @@ const createUser = (req, res, next) => {
         about,
         avatat,
         email,
-        password: hashedPassword
+        password: hashedPassword,
       })
         .then((user) => {
           res.send({ data: user });
@@ -28,20 +28,21 @@ const createUser = (req, res, next) => {
 };
 
 const getUsers = (req, res, next) => {
-  console.log('Hello')
+  // eslint-disable-next-line no-console
+  console.log('Users');
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch(next);
 };
 
 const login = (req, res, next) => {
-
   const { email, password } = req.body;
 
   User.findOne({ email })
     .select('+password')
     .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
+      // eslint-disable-next-line no-console
       console.log(user);
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
@@ -50,13 +51,13 @@ const login = (req, res, next) => {
           } else {
             res.status(403).send({ message: 'Неправильный пароль' });
           }
-        })
+        });
     })
-    .catch(next)
+    .catch(next);
 };
 
 module.exports = {
   createUser,
   getUsers,
-  login
-}
+  login,
+};
