@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
+    select: false,
     required: [true, 'Поле email должно быть заполнено'],
   },
   password: {
