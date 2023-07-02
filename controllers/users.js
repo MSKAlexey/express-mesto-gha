@@ -29,7 +29,7 @@ const createUser = (req, res, next) => {
 // получаем список пользователей из базы
 const getUsers = (req, res, next) => {
   // eslint-disable-next-line no-console
-  console.log('Users');
+  // console.log(req.user._id);
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch(next);
