@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-
+// создаем пользователя
 const createUser = (req, res, next) => {
   const {
     name,
@@ -26,7 +26,7 @@ const createUser = (req, res, next) => {
     })
     .catch(next);
 };
-
+// получаем список пользователей из базы
 const getUsers = (req, res, next) => {
   // eslint-disable-next-line no-console
   console.log('Users');
@@ -34,16 +34,13 @@ const getUsers = (req, res, next) => {
     .then((users) => res.send({ data: users }))
     .catch(next);
 };
-
+// логинимся по почте с паролем, мечайно сделал, перепутал спринты
 const login = (req, res, next) => {
   const { email, password } = req.body;
-
   User.findOne({ email })
     .select('+password')
     .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
-      // eslint-disable-next-line no-console
-      console.log(user);
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
           if (isValidUser) {
@@ -55,9 +52,19 @@ const login = (req, res, next) => {
     })
     .catch(next);
 };
+// получаем пользователя по id
+const getUsersById = (req, res, next) => {
+  User.findById(req.params.id)
+    .orFail(() => new Error('Пользователь с таким id не найден'))
+    .then((user) => {
+      res.send(user);
+    })
+    .catch(next);
+};
 
 module.exports = {
   createUser,
   getUsers,
   login,
+  getUsersById,
 };

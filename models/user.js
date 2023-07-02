@@ -30,8 +30,6 @@ const userSchema = new mongoose.Schema({
     select: false,
     required: [true, 'Поле password должно быть заполнено'],
   },
-}, { versionKey: false });
+});
 
-const User = mongoose.model('user', userSchema);
-
-module.exports = User;
+module.exports = mongoose.model('user', userSchema);
