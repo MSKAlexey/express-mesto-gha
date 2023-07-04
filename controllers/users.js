@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
-// создаем пользователя
+const NotFoundError = require('../errors/NotFoundError');
+const CreateAndEditUserCardProfileError = require('../errors/CreateAndEditUserCardProfileError');
+
 const createUser = (req, res, next) => {
   const {
     name,
@@ -18,28 +20,33 @@ const createUser = (req, res, next) => {
         avatat,
         email,
         password: hashedPassword,
+        _id: req.user._id,
       })
         .then((user) => {
           res.send({ data: user });
         })
-        .catch(next);
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new CreateAndEditUserCardProfileError('Данный email уже зарегистрирован'));
+          } else {
+            next(err);
+          }
+        });
     })
     .catch(next);
 };
-// получаем список пользователей из базы
+
 const getUsers = (req, res, next) => {
-  // eslint-disable-next-line no-console
-  // console.log(req.user._id);
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch(next);
 };
-// логинимся по почте с паролем, мечайно сделал, перепутал спринты
+
 const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new Error('Пользователь не найден'))
+    .orFail(() => new NotFoundError('Пользователь не найден'))
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
@@ -52,12 +59,33 @@ const login = (req, res, next) => {
     })
     .catch(next);
 };
-// получаем пользователя по id
+
 const getUsersById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(() => new Error('Пользователь с таким id не найден'))
+    .orFail(() => new NotFoundError('Пользователь с таким id не найден'))
     .then((user) => {
       res.send(user);
+    })
+    .catch(next);
+};
+
+const updateProfile = (req, res, next) => {
+  const newUser = req.body;
+  const id = req.user._id;
+  return User.findByIdAndUpdate(id, newUser, {
+    new: true,
+    runValidators: true,
+  })
+    .orFail(new Error('NotValidId'))
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.message === 'NotValidId') {
+        throw new NotFoundError(`Пользователь по id  ${req.user._id} не найден`);
+      }
+      if (err.name === 'ValidationError') {
+        throw new Error(`${Object.values(err.errors).map((error) => error.message).join(' and ')}`);
+      }
+      next(err);
     })
     .catch(next);
 };
@@ -67,4 +95,5 @@ module.exports = {
   getUsers,
   login,
   getUsersById,
+  updateProfile,
 };
