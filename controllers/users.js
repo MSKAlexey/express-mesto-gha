@@ -27,7 +27,7 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.code === 11000) {
-            next(new CreateAndEditUserCardProfileError('Данный email уже зарегистрирован'));
+            next(new CreateAndEditUserCardProfileError('Данный email или id уже зарегистрирован'));
           } else {
             next(err);
           }
