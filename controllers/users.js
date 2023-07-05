@@ -23,7 +23,7 @@ const createUser = (req, res, next) => {
         _id: req.user._id,
       })
         .then((user) => {
-          res.send({ data: user });
+          res.status(201).send({ data: user });
         })
         .catch((err) => {
           if (err.code === 11000) {
