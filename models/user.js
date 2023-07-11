@@ -23,7 +23,6 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     unique: true,
-    select: false,
     required: [true, 'Поле email должно быть заполнено'],
   },
   password: {
@@ -31,6 +30,14 @@ const userSchema = new mongoose.Schema({
     select: false,
     required: [true, 'Поле password должно быть заполнено'],
   },
-});
+}, { versionKey: false });
+
+// eslint-disable-next-line func-names
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+  delete user.password;
+
+  return user;
+};
 
 module.exports = mongoose.model('user', userSchema);

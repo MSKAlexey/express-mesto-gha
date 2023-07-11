@@ -1,13 +1,13 @@
 const bcrypt = require('bcryptjs');
+const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
-const NotFoundError = require('../errors/NotFoundError');
-const CreateAndEditUserCardProfileError = require('../errors/CreateAndEditUserCardProfileError');
+const { CreateAndEditUserCardProfileError, NotFoundError } = require('../errors/errors');
 
 const createUser = (req, res, next) => {
   const {
     name,
     about,
-    avatat,
+    avatar,
     email,
     password,
   } = req.body;
@@ -17,17 +17,16 @@ const createUser = (req, res, next) => {
       User.create({
         name,
         about,
-        avatat,
+        avatar,
         email,
         password: hashedPassword,
-        _id: req.user._id,
       })
         .then((user) => {
           res.status(201).send({ data: user });
         })
         .catch((err) => {
           if (err.code === 11000) {
-            next(new CreateAndEditUserCardProfileError('Данный email или id уже зарегистрирован'));
+            next(new CreateAndEditUserCardProfileError('Данный email уже зарегистрирован'));
           } else {
             next(err);
           }
@@ -44,6 +43,12 @@ const getUsers = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
+  // для предотвращения лишних пустых запросов
+  if (!email || !password) {
+    res.status(403).send({ message: 'Не введен email или пароль' });
+    return;
+  }
+
   User.findOne({ email })
     .select('+password')
     .orFail(() => new NotFoundError('Пользователь не найден'))
@@ -51,9 +56,17 @@ const login = (req, res, next) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
           if (isValidUser) {
-            res.send({ data: user });
+            const jwt = jsonWebToken.sign({
+              _id: user._id,
+            }, 'SECRET');
+            res.cookie('jwt', jwt, {
+              maxAge: 360000,
+              httpOnly: true,
+              sameSite: true,
+            });
+            res.send({ data: user.toJSON() });
           } else {
-            res.status(403).send({ message: 'Неправильный пароль' });
+            res.status(403).send({ message: 'Неправильные данные' });
           }
         });
     })

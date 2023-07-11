@@ -2,7 +2,9 @@
 const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 const routes = require('./routes');
+const errorHandler = require('./errors/errors');
 
 const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
@@ -13,17 +15,12 @@ mongoose.connect(DB_URL, {
   useUnifiedTopology: true,
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '5d8b8592978f8bd833ca8133', // вставьте сюда _id созданного в предыдущем пункте пользователя
-  };
-  next();
-});
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(routes);
 
+app.use(errorHandler);
 // eslint-disable-next-line no-console
 app.listen(PORT, () => console.log('ok'));
