@@ -22,5 +22,5 @@ app.use(cookieParser());
 app.use(routes);
 
 app.use(errorHandler);
-// eslint-disable-next-line no-console
-app.listen(PORT, () => console.log('ok'));
+
+app.listen(PORT);

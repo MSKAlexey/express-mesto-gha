@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
-const { CreateAndEditUserCardProfileError, NotFoundError } = require('../errors/errors');
+const CreateAndEditUserCardProfileError = require('../errors/CreateAndEditUserCardProfileError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const createUser = (req, res, next) => {
   const {
