@@ -26,11 +26,11 @@ const createUser = (req, res, next) => {
           res.status(201).send({ data: user });
         })
         .catch((err) => {
-          if (err.code === 11000) {
+          if (err.statusCode === 11000) {
             next(new CreateAndEditUserCardProfileError('Данный email уже зарегистрирован'));
-          } else {
-            next(err);
-          }
+          }/*  else {
+            // next(err);
+          } */
         });
     })
     .catch(next);
@@ -59,7 +59,7 @@ const login = (req, res, next) => {
           if (isValidUser) {
             const jwt = jsonWebToken.sign({
               _id: user._id,
-            }, 'SECRET');
+            }, process.env['JWT-SECRET']);
             res.cookie('jwt', jwt, {
               maxAge: 360000,
               httpOnly: true,
@@ -67,7 +67,7 @@ const login = (req, res, next) => {
             });
             res.send({ data: user.toJSON() });
           } else {
-            res.status(403).send({ message: 'Неправильные данные' });
+            res.status(403).send({ message: 'Неправильные введен email или пароль' });
           }
         });
     })

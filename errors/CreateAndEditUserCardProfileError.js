@@ -1,6 +1,7 @@
 class CreateAndEditUserCardProfileError extends Error {
-  constructor(message) {
-    super(message);
+  constructor(err) {
+    super(err);
+    this.message = 'Данные введены не верно';
     this.statusCode = 400;
   }
 }
