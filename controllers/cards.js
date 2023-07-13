@@ -1,5 +1,4 @@
 const Card = require('../models/card');
-const NotFoundError = require('../errors/NotFoundError');
 
 const createCard = (req, res, next) => {
   const {
@@ -26,7 +25,7 @@ const getCards = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
-    .orFail(() => new NotFoundError('Карточка не найдена'))
+    .orFail(() => new Error('Что то пошло не так'))
     .then((cards) => cards.deleteOne(cards)
       .then(() => res.send({ data: cards })))
     .catch(next);

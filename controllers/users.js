@@ -1,8 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
-const CreateAndEditUserCardProfileError = require('../errors/CreateAndEditUserCardProfileError');
-const NotFoundError = require('../errors/NotFoundError');
 
 const createUser = (req, res, next) => {
   const {
@@ -27,7 +25,7 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.statusCode === 11000) {
-            next(new CreateAndEditUserCardProfileError('Данный email уже зарегистрирован'));
+            next(new Error('Данный email уже зарегистрирован'));
           }/*  else {
             // next(err);
           } */
@@ -52,7 +50,7 @@ const login = (req, res, next) => {
 
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new NotFoundError('Пользователь не найден'))
+    .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
@@ -76,7 +74,7 @@ const login = (req, res, next) => {
 
 const getUsersById = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(() => new NotFoundError('Пользователь с таким id не найден'))
+    .orFail(() => new Error('Пользователь с таким id не найден'))
     .then((user) => {
       res.send(user);
     })
@@ -94,7 +92,7 @@ const updateProfile = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.message === 'NotValidId') {
-        throw new NotFoundError(`Пользователь по id  ${req.user._id} не найден`);
+        throw new Error(`Пользователь по id  ${req.user._id} не найден`);
       }
       if (err.name === 'ValidationError') {
         throw new Error(`${Object.values(err.errors).map((error) => error.message).join(' and ')}`);
