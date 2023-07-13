@@ -54,9 +54,11 @@ const errorHandler = (err, req, res, next) => {
     error = new CreateAndEditUserCardProfileError(err);
   } else if (err.statusCode === 404) {
     error = new UserNotFoundError(err);
+  } else if (err.statusCode === 403) {
+    error = new UserNotFoundError(err);
   } else if (err.statusCode === 212) {
     error = new WrongEmail(err);
-  } else if (err.name === '1JsonWebTokenError') {
+  } else if (err.name === 'JsonWebTokenError') {
     error = new JWTokenError(err);
   } else {
     error = new GeneralError(err);
