@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
+const { NotFoundError, mailAlreadyExists } = require('../errors/errors');
 
 const createUser = (req, res, next) => {
   const {
@@ -24,14 +25,14 @@ const createUser = (req, res, next) => {
           res.status(201).send({ data: user });
         })
         .catch((err) => {
-          if (err.statusCode === 11000) {
-            next(new Error('Данный email уже зарегистрирован'));
+          if (err.code === 11000) {
+            next(new mailAlreadyExists('Данный email уже зарегистрирован'));
           } else {
             next(err);
           }
         });
     })
-    .catch(next);
+  // .catch(next);
 };
 
 const getUsers = (req, res, next) => {
@@ -50,7 +51,7 @@ const login = (req, res, next) => {
 
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new Error('Пользователь не найден'))
+    .orFail(() => new NotFoundError('Пользователь не найден'))
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
