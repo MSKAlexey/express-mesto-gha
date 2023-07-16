@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jsonWebToken = require('jsonwebtoken');
 const User = require('../models/user');
-const { NotFoundError, mailAlreadyExists } = require('../errors/errors');
 
 const createUser = (req, res, next) => {
   const {
@@ -26,13 +25,13 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.code === 11000) {
-            next(new mailAlreadyExists('Данный email уже зарегистрирован'));
+            next(res.status(409));
           } else {
             next(err);
           }
         });
     })
-  // .catch(next);
+    .catch(next);
 };
 
 const getUsers = (req, res, next) => {
@@ -45,13 +44,13 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   // для предотвращения лишних пустых запросов
   if (!email || !password) {
-    res.status(403).send({ message: 'Не введен email или пароль' });
+    res.status(403).send({ message: 'email или пароль не введены' });
     return;
   }
 
   User.findOne({ email })
     .select('+password')
-    .orFail(() => new NotFoundError('Пользователь не найден'))
+    .orFail(() => new Error('Пользователь не найден'))
     .then((user) => {
       bcrypt.compare(String(password), user.password)
         .then((isValidUser) => {
@@ -66,7 +65,7 @@ const login = (req, res, next) => {
             });
             res.send({ data: user.toJSON() });
           } else {
-            res.status(403).send({ message: 'Неправильные введен email или пароль' });
+            res.status(403).send({ message: 'Введены неправильные данные' });
           }
         });
     })
@@ -75,7 +74,6 @@ const login = (req, res, next) => {
 
 const getUsersById = (req, res, next) => {
   User.findById(req.params.id)
-    // .orFail(() => new Error('Пользователь с таким id не найден'))
     .orFail(() => next(res.status(404)))
     .then((user) => {
       res.send(user);
@@ -93,13 +91,11 @@ const updateProfile = (req, res, next) => {
     .orFail(new Error('NotValidId'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === 'NotValidId') {
-        throw new Error(`Пользователь по id  ${req.user._id} не найден`);
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        next(res.status(404));
+      } else {
+        next(err);
       }
-      if (err.name === 'ValidationError') {
-        throw new Error(`${Object.values(err.errors).map((error) => error.message).join(' and ')}`);
-      }
-      next(err);
     })
     .catch(next);
 };
