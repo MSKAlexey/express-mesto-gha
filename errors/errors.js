@@ -24,13 +24,13 @@ class GeneralError extends Error {
   }
 }
 
-// class UserAlreadyExists extends Error {
-//   constructor(err) {
-//     super(err);
-//     this.message = 'Ошибка на стороне сервера';
-//     this.statusCode = 500;
-//   }
-// }
+class UserEmailExist extends Error {
+  constructor(err) {
+    super(err);
+    this.message = 'Пользователь с таким email не найден';
+    this.statusCode = 401;
+  }
+}
 
 class Authorization extends Error {
   constructor(err) {
@@ -56,8 +56,10 @@ const errorHandler = (err, req, res, next) => {
     error = new UserNotFoundError(err);
   } else if (err.statusCode === 403) {
     error = new UserNotFoundError(err);
-  } else if (err.statusCode === 409) {
-    error = new WrongEmail(err);
+  } else if (err.statusCode === 403) {
+    error = new UserNotFoundError(err);
+  } else if (err.statusCode === 401) {
+    error = new UserEmailExist(err);
   } else if (err.name === 'JsonWebTokenError') {
     error = new Authorization(err);
   } else {
