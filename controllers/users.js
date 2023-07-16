@@ -26,9 +26,9 @@ const createUser = (req, res, next) => {
         .catch((err) => {
           if (err.statusCode === 11000) {
             next(new Error('Данный email уже зарегистрирован'));
-          }/*  else {
-            // next(err);
-          } */
+          } else {
+            next(err);
+          }
         });
     })
     .catch(next);
