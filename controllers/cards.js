@@ -25,9 +25,17 @@ const getCards = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
-    .orFail(() => new Error('Что то пошло не так'))
-    .then((cards) => cards.deleteOne(cards)
-      .then(() => res.send({ data: cards })))
+    .orFail(() => {
+      next(res.status(404).send('Карточка не найдена'));
+    })
+    .then((card) => {
+      if (card.owner.toString() !== req.user._id) {
+        next(res.status(404).send('Удалять можно только свои карточки'));
+      } else {
+        card.deleteOne(card)
+          .then(() => res.send({ data: card }));
+      }
+    })
     .catch(next);
 };
 

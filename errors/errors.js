@@ -8,10 +8,10 @@ class CreateAndEditUserCardProfileError extends Error {
   }
 }
 
-class UserNotFoundError extends Error {
+class NotFoundError extends Error {
   constructor(err) {
     super(err);
-    this.message = 'Пользователь не найден';
+    this.message = err.message;
     this.statusCode = 404;
   }
 }
@@ -32,7 +32,7 @@ class UserEmailExist extends Error {
   }
 }
 
-class Authorization extends Error {
+class AuthorizationError extends Error {
   constructor(err) {
     super(err);
     this.message = 'Авторизуйтесь';
@@ -48,20 +48,26 @@ class WrongEmail extends Error {
   }
 }
 
+class IncorrectData extends Error {
+  constructor(err) {
+    super(err);
+    this.message = 'Переданы некорректные данные';
+    this.statusCode = 401;
+  }
+}
+
 const errorHandler = (err, req, res, next) => {
   let error;
   if (err.code === 11000) {
     error = new CreateAndEditUserCardProfileError(err);
   } else if (err.statusCode === 404) {
-    error = new UserNotFoundError(err);
-  } else if (err.statusCode === 403) {
-    error = new UserNotFoundError(err);
-  } else if (err.statusCode === 403) {
-    error = new UserNotFoundError(err);
-  } else if (err.statusCode === 401) {
-    error = new UserEmailExist(err);
-  } else if (err.name === 'JsonWebTokenError') {
-    error = new Authorization(err);
+    error = new NotFoundError(err);
+  } else if (err.statusCode === 404) {
+    error = new NotFoundError(err);
+  } else if (err.statusCode === 400) {
+    error = new IncorrectData(err);
+  } else if (err.name === 'JsonWebTokenError' || err.statusCode === 401) {
+    error = new AuthorizationError(err);
   } else {
     error = new GeneralError(err);
   }

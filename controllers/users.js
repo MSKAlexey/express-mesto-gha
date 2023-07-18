@@ -65,7 +65,7 @@ const login = (req, res, next) => {
             });
             res.send({ data: user.toJSON() });
           } else {
-            res.status(403).send({ message: 'Введены неправильные данные' });
+            next(res.status(401));
           }
         });
     })
@@ -92,7 +92,7 @@ const updateProfile = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(res.status(404));
+        next(res.status(400));
       } else {
         next(err);
       }
