@@ -73,7 +73,7 @@ const login = (req, res, next) => {
 };
 
 const getUsersById = (req, res, next) => {
-  User.findById(req.params.id)
+  User.findById(req.params.id || req.user._id)
     .orFail(() => next(res.status(404)))
     .then((user) => {
       res.send(user);

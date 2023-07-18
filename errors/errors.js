@@ -24,14 +24,6 @@ class GeneralError extends Error {
   }
 }
 
-class UserEmailExist extends Error {
-  constructor(err) {
-    super(err);
-    this.message = 'Пользователь с таким email не найден';
-    this.statusCode = 401;
-  }
-}
-
 class AuthorizationError extends Error {
   constructor(err) {
     super(err);
@@ -60,8 +52,6 @@ const errorHandler = (err, req, res, next) => {
   let error;
   if (err.code === 11000) {
     error = new CreateAndEditUserCardProfileError(err);
-  } else if (err.statusCode === 404) {
-    error = new NotFoundError(err);
   } else if (err.statusCode === 404) {
     error = new NotFoundError(err);
   } else if (err.statusCode === 400) {

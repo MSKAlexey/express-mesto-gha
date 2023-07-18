@@ -13,7 +13,7 @@ router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 
 router.use((req, res, next) => {
-  next(new Error('Маршрут не найден'));
+  next(res.status(404).send('Маршрут не найден'));
 });
 
 module.exports = router;

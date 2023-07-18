@@ -4,6 +4,8 @@ const express = require('express');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
+const { errors } = require('celebrate');
 const routes = require('./routes');
 const errorHandler = require('./errors/errors');
 
@@ -21,6 +23,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.use(routes);
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(limiter);
+
+app.use(errors());
 
 app.use(errorHandler);
 
