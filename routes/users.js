@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const { validateSingUp } = require('../middlwares/validators/validate');
 
 const {
   createUser,
@@ -8,6 +7,7 @@ const {
   getUsersById,
   updateProfile,
 } = require('../controllers/users');
+const { validateSingUp } = require('../middlwares/validators/validate');
 
 router.post('/', createUser);
 
