@@ -9,10 +9,10 @@ const {
 } = require('../controllers/users');
 const { validateSingUp } = require('../middlwares/validators/validate');
 
-router.post('/', createUser);
+router.post('/', validateSingUp, createUser);
 
 router.get('/', getUsers);
-router.get('/', validateSingUp, login);
+router.get('/', login);
 
 router.get('/me', getUsersById);
 
