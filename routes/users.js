@@ -7,9 +7,8 @@ const {
   getUsersById,
   updateProfile,
 } = require('../controllers/users');
-const { validateSingUp } = require('../middlwares/validators/validate');
 
-router.post('/', validateSingUp, createUser);
+router.post('/', createUser);
 
 router.get('/', getUsers);
 router.get('/', login);
