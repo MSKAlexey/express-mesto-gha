@@ -12,7 +12,7 @@ const { validateId } = require('../middlwares/validators/validate');
 router.post('/', createCard);
 router.get('/', getCards);
 router.delete('/:id', validateId, deleteCard);
-router.put('/:id/likes', likeCard);
-router.delete('/:id/likes', dislikeCard);
+router.put('/:id/likes', validateId, likeCard);
+router.delete('/:id/likes', validateId, dislikeCard);
 
 module.exports = router;
