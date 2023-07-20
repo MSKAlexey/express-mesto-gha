@@ -3,7 +3,7 @@ const { createUser, login } = require('../controllers/users');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
 const auth = require('../middlwares/auth');
-const { validateSingUp, validateSingIn } = require('../middlwares/validators/validate');
+const { validateSingUp, validateSingIn } = require('../middlwares/validators/validators');
 
 router.post('/signup', validateSingUp, createUser);
 router.post('/signin', validateSingIn, login);

@@ -91,7 +91,7 @@ const updateProfile = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(/* res.status(400) */err);
+        next(res.status(400));
       } else {
         next(err);
       }
