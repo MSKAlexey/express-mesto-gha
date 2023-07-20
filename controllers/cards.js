@@ -30,7 +30,7 @@ const deleteCard = (req, res, next) => {
     })
     .then((card) => {
       if (card.owner.toString() !== req.user._id) {
-        next(res.status(404).send('Удалять можно только свои карточки'));
+        next(res.status(403).send('Удалять можно только свои карточки'));
       } else {
         card.deleteOne(card)
           .then(() => res.send({ data: card }));
@@ -45,8 +45,20 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new Error('Что то пошло не так'))
-    .catch(next);
+    // eslint-disable-next-line consistent-return
+    .then((card) => {
+      if (card) {
+        return res.send({ message: 'Вы поставили лайк' });
+      }
+      next(res.status(404).send('Карточка не найдена'));
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(res.status(400));
+        return;
+      }
+      next(err);
+    });
 };
 
 const dislikeCard = (req, res, next) => {
@@ -55,8 +67,20 @@ const dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => new Error('Что то пошло не так'))
-    .catch(next);
+    // eslint-disable-next-line consistent-return
+    .then((card) => {
+      if (card) {
+        return res.send({ message: 'Вы удалили лайк' });
+      }
+      next(res.status(404).send('Карточка не найдена'));
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(res.status(400));
+        return;
+      }
+      next(err);
+    });
 };
 
 module.exports = {

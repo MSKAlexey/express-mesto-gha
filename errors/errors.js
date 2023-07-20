@@ -1,13 +1,5 @@
 /* eslint-disable no-unused-vars */
 // eslint-disable-next-line max-classes-per-file
-class CreateAndEditUserCardProfileError extends Error {
-  constructor(err) {
-    super(err);
-    this.message = 'При создании произошла ошибка';
-    this.statusCode = err.statusCode;
-  }
-}
-
 class NotFoundError extends Error {
   constructor(err) {
     super(err);
@@ -32,7 +24,7 @@ class AuthorizationError extends Error {
   }
 }
 
-class WrongEmail extends Error {
+class EmailDuplicateError extends Error {
   constructor(err) {
     super(err);
     this.message = 'Такой email уже зарегестрирован';
@@ -40,22 +32,42 @@ class WrongEmail extends Error {
   }
 }
 
-class IncorrectData extends Error {
+class ForbiddenError extends Error {
   constructor(err) {
     super(err);
-    this.message = 'Переданы некорректные данные';
-    this.statusCode = 401;
+    this.message = err.message;
+    this.statusCode = 403;
+  }
+}
+
+class IncorrectDataError extends Error {
+  constructor(err) {
+    super(err);
+    this.message = err.message;
+    this.statusCode = 400;
+  }
+}
+
+class ValidationError extends Error {
+  constructor(err) {
+    super(err);
+    this.message = err.message;
+    this.statusCode = 400;
   }
 }
 
 const errorHandler = (err, req, res, next) => {
   let error;
-  if (err.code === 11000) {
-    error = new CreateAndEditUserCardProfileError(err);
+  if (err.statusCode === 409) {
+    error = new EmailDuplicateError(err);
   } else if (err.statusCode === 404) {
     error = new NotFoundError(err);
+  } else if (err.statusCode === 403) {
+    error = new ForbiddenError(err);
   } else if (err.statusCode === 400) {
-    error = new IncorrectData(err);
+    error = new IncorrectDataError(err);
+  } else if (err.name === 'ValidationError') {
+    error = new ValidationError(err);
   } else if (err.name === 'JsonWebTokenError' || err.statusCode === 401) {
     error = new AuthorizationError(err);
   } else {

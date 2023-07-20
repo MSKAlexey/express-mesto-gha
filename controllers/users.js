@@ -44,7 +44,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   // для предотвращения лишних пустых запросов
   if (!email || !password) {
-    res.status(403).send({ message: 'email или пароль не введены' });
+    next(res.status(403).send({ message: 'email или пароль не введены' }));
     return;
   }
 
@@ -88,11 +88,10 @@ const updateProfile = (req, res, next) => {
     new: true,
     runValidators: true,
   })
-    .orFail(new Error('NotValidId'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        next(res.status(400));
+        next(/* res.status(400) */err);
       } else {
         next(err);
       }

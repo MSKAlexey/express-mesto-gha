@@ -1,12 +1,12 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const { celebrate, Joi } = require('celebrate');
 
-const validateCard = celebrate({
+const validateId = celebrate({
   params: Joi.object().keys({
-    id: Joi.string().required().length(24),
+    id: Joi.string().length(24).hex().required(),
   }),
 });
 
 module.exports = {
-  validateCard,
+  validateId,
 };
