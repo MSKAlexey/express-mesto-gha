@@ -17,7 +17,7 @@ const validateSingUp = celebrate({
 });
 
 const validateSingIn = celebrate({
-  params: Joi.object().keys({
+  body: Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().min(6).required(),
   }),

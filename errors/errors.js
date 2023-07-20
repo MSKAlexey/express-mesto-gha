@@ -56,6 +56,14 @@ class ValidationError extends Error {
   }
 }
 
+class EmailNotFoundError extends Error {
+  constructor(err) {
+    super(err);
+    this.message = 'Такой email не зарегестрирован';
+    this.statusCode = 401;
+  }
+}
+
 const errorHandler = (err, req, res, next) => {
   let error;
   if (err.statusCode === 409) {
@@ -64,6 +72,8 @@ const errorHandler = (err, req, res, next) => {
     error = new NotFoundError(err);
   } else if (err.statusCode === 403) {
     error = new ForbiddenError(err);
+  } else if (err.statusCode === 401) {
+    error = new EmailNotFoundError(err);
   } else if (err.statusCode === 400) {
     error = new IncorrectDataError(err);
   } else if (err.name === 'ValidationError') {
