@@ -74,7 +74,7 @@ const login = (req, res, next) => {
 
 const getUsersById = (req, res, next) => {
   User.findById(req.params.id || req.user._id)
-    .orFail(() => next(res.status(404)))
+    .orFail(() => next(res.status(404).send('Пользователь с таким id не найден')))
     .then((user) => {
       res.send(user);
     })
